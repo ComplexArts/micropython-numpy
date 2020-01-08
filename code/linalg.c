@@ -186,27 +186,66 @@ mp_obj_t linalg_inv(mp_obj_t o_in) {
 mp_obj_t linalg_dot(mp_obj_t _m1, mp_obj_t _m2) {
     // TODO: should the results be upcast?
     ndarray_obj_t *m1 = MP_OBJ_TO_PTR(_m1);
-    ndarray_obj_t *m2 = MP_OBJ_TO_PTR(_m2);    
-    if(m1->n != m2->m) {
-        mp_raise_ValueError("matrix dimensions do not match");
-    }
-    // TODO: numpy uses upcasting here
-    ndarray_obj_t *out = create_new_ndarray(m1->m, m2->n, NDARRAY_FLOAT);
-    mp_float_t *outdata = (mp_float_t *)out->array->items;
-    mp_float_t sum, v1, v2;
-    for(size_t i=0; i < m1->m; i++) { // rows of m1
-        for(size_t j=0; j < m2->n; j++) { // columns of m2
+    ndarray_obj_t *m2 = MP_OBJ_TO_PTR(_m2);
+    if (m2->m == 1 || m2->n == 1) {
+        // m2 is 1D of size p
+        size_t p = m2->n == 1 ? m2->m : m2->n;
+        if (m1->n != p) {
+            mp_raise_ValueError("!matrix dimensions do not match!");
+        }
+        if (m1->m == 1 || m1->n == 1) {
+            // m1 is 1D of size p, return float
+            // TODO: numpy uses upcasting here
+            mp_float_t sum, v1, v2;
             sum = 0.0;
-            for(size_t k=0; k < m2->m; k++) {
-                // (i, k) * (k, j)
-                v1 = ndarray_get_float_value(m1->array->items, m1->array->typecode, i*m1->n+k);
-                v2 = ndarray_get_float_value(m2->array->items, m2->array->typecode, k*m2->n+j);
+            for (size_t k = 0; k < p; k++) {
+                // (k) * (k)
+                v1 = ndarray_get_float_value(m1->array->items, m1->array->typecode, k);
+                v2 = ndarray_get_float_value(m2->array->items, m2->array->typecode, k);
                 sum += v1 * v2;
             }
-            outdata[i*m1->m+j] = sum;
+            return mp_obj_new_float(sum);
+        } else {
+            // TODO: numpy uses upcasting here
+            ndarray_obj_t *out = create_new_ndarray(m1->m, 1, NDARRAY_FLOAT);
+            mp_float_t *outdata = (mp_float_t *) out->array->items;
+            mp_float_t sum, v1, v2;
+            for (size_t i = 0; i < m1->m; i++) { // rows of m1
+                sum = 0.0;
+                for (size_t k = 0; k < p; k++) {
+                    // (i, k) * (k)
+                    v1 = ndarray_get_float_value(m1->array->items, m1->array->typecode, i * m1->n + k);
+                    v2 = ndarray_get_float_value(m2->array->items, m2->array->typecode, k);
+                    sum += v1 * v2;
+                }
+                outdata[i] = sum;
+            }
+            return MP_OBJ_FROM_PTR(out);
         }
+    } else {
+        // general matrix multiplication
+        if (m1->n != m2->m) {
+            mp_raise_ValueError("matrix dimensions do not match");
+        }
+        // TODO: numpy uses upcasting here
+        ndarray_obj_t *out = create_new_ndarray(m1->m, m2->n, NDARRAY_FLOAT);
+        mp_float_t *outdata = (mp_float_t *) out->array->items;
+        mp_float_t sum, v1, v2;
+        for (size_t i = 0; i < m1->m; i++) { // rows of m1
+            for (size_t j = 0; j < m2->n; j++) { // columns of m2
+                sum = 0.0;
+                for (size_t k = 0; k < m2->m; k++) {
+                    // (i, k) * (k, j)
+                    v1 = ndarray_get_float_value(m1->array->items, m1->array->typecode, i * m1->n + k);
+                    v2 = ndarray_get_float_value(m2->array->items, m2->array->typecode, k * m2->n + j);
+                    sum += v1 * v2;
+                }
+                // THIS WAS INCORRECT: m1->m
+                outdata[i * m2->n + j] = sum;
+            }
+        }
+        return MP_OBJ_FROM_PTR(out);
     }
-    return MP_OBJ_FROM_PTR(out);
 }
 
 mp_obj_t linalg_zeros_ones(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args, uint8_t kind) {
