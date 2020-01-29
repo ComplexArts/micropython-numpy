@@ -16,8 +16,7 @@ able to infer the syntax from the current numpy documentation.
 ## Compatibility
 
 One major difference is that `shape` and `ndim` and `size` are not properties but methods. 
-The reason for that is discussed here
-https://forum.micropython.org/viewtopic.php?t=2412.
+The reason for that is discussed [here](https://forum.micropython.org/viewtopic.php?t=2412).
 
 In order to make your code run on both the micropython as well as the regular python 
 numpy use the functions `np.shape`, `np.ndim`, and `np.shape`, instead, which are present
