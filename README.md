@@ -32,4 +32,38 @@ use
 
 The property `a.shape` works only on regular numpy and the method `a.shape()` works 
 only on micropython.
+
+## Features
+
+1. Multidimensional arrays
+2. Support types:
+   - bool_, uint8, int8, uint16, int16, float_
+3. Slices are fully supported as views
+4. Unary + binary operators
+   - all but inplace operators
+5. Functions and methods:
+   - `max`, `min`, `all`, `any`, `sum`, `prod`
+   - `minimum`, `maximum`
+   - `concatenate`, `vstack`, `hstack`
+   - `empty`, `full`, `zeros`, `ones`, `eye`
+   - `flip`, `fliplr`, `flipud`
+6. Supported float functions:
+   - `acos`, `asin`, `atan`, `sin`, `cos`, `tan`
+   - `acosh`, `asinh`, `atanh`, `sinh`, `cosh`, `tanh`
+   - `ceil`, `floor`
+   - `erf`, `erfc`
+   - `exp`, `expm1`
+   - `gamma`, `lgamma`
+   - `log`, `log10`, `log2`
+   - `sqrt`
+7. Linear algebra
+   - `dot`
+   - `lu`, `solve`, `inv`, `det`
    
+## Missing features
+
+1. Advanced indexing
+2. uint32/int32/complex types
+3. Inplace operators
+4. @ operator 
+5. Lots of linear algebra
