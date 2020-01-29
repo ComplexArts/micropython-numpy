@@ -1624,5 +1624,40 @@ class TestUnittestAssertions(unittest.TestCase):
                 for k, eijk in enumerate(eij):
                     self.assertEqual(eijk, m[i][j][k])
 
+    def test_issubsctype(self):
+
+        data = [1,2,3]
+        types = [np.bool_, np.uint8, np.int8, np.uint16, np.int16, np.float_]
+
+        c = np.array(data, np.bool_)
+        answer = [True, False, False, False, False, False]
+        for i, t in enumerate(types):
+            self.assertEqual(np.issubsctype(c, t), answer[i])
+
+        c = np.array(data, np.uint8)
+        answer = [False, True, False, False, False, False]
+        for i, t in enumerate(types):
+            self.assertEqual(np.issubsctype(c, t), answer[i])
+
+        c = np.array(data, np.int8)
+        answer = [False, True, True, False, False, False]
+        for i, t in enumerate(types):
+            self.assertEqual(np.issubsctype(c, t), answer[i])
+
+        c = np.array(data, np.uint16)
+        answer = [False, True, False, True, False, False]
+        for i, t in enumerate(types):
+            self.assertEqual(np.issubsctype(c, t), answer[i])
+
+        c = np.array(data, np.int16)
+        answer = [False, True, True, True, True, False]
+        for i, t in enumerate(types):
+            self.assertEqual(np.issubsctype(c, t), answer[i])
+
+        c = np.array(data, np.float_)
+        answer = [False, True, True, True, True, True]
+        for i, t in enumerate(types):
+            self.assertEqual(np.issubsctype(c, t), answer[i])
+
 if __name__ == "__main__":
     unittest.main()

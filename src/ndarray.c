@@ -152,14 +152,13 @@ uint8_t
 ndarray_init_helper(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     static const mp_arg_t allowed_args[] = {
             { MP_QSTR_, MP_ARG_REQUIRED | MP_ARG_OBJ, {.u_obj = mp_const_none} },
-            { MP_QSTR_dtype, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = NDARRAY_FLOAT } },
+            { MP_QSTR_dtype, MP_ARG_INT, {.u_int = NDARRAY_FLOAT } },
     };
 
     mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
-    mp_arg_parse_all(1, pos_args, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
+    mp_arg_parse_all(n_args, pos_args, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
 
-    uint8_t dtype = args[1].u_int;
-    return dtype;
+    return args[1].u_int;
 }
 
 mp_obj_t
@@ -1252,7 +1251,7 @@ ndarray_array_equal(mp_obj_t lhs_obj, mp_obj_t rhs_obj) {
 
 }
 
-// FLIP, FLIPUD
+// FLIP, FLIPUD, FLIPLR
 
 mp_obj_t
 array_flip(ndarray_obj_t *self, mp_int_t axis) {
