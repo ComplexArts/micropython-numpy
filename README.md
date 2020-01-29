@@ -59,6 +59,7 @@ only on micropython.
 7. Linear algebra
    - `dot`
    - `lu`, `solve`, `inv`, `det`
+8. Extensive unittest based routines
    
 ## Missing features
 
