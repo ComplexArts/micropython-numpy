@@ -68,3 +68,14 @@ only on micropython.
 3. Inplace operators
 4. @ operator 
 5. Lots of linear algebra
+
+## Compiling
+
+Compile as a regular micropython external C module. At this time you will need to use the 
+following fork and branch
+
+https://github.com/ComplexArts/micropython/tree/equality
+
+to fix some micropython issues have with equality.
+See [this PR](https://github.com/micropython/micropython/pull/5479) for details on this issue.
+

@@ -1225,7 +1225,7 @@ ndarray_array_equal(mp_obj_t lhs_obj, mp_obj_t rhs_obj) {
 
     // are lhs and rhs ndarray?
     if (!MP_OBJ_IS_TYPE(lhs_obj, &ndarray_type) && !MP_OBJ_IS_TYPE(rhs_obj, &ndarray_type))
-        return mp_obj_equality(lhs_obj, rhs_obj, MP_BINARY_OP_EQUAL);
+        return mp_binary_op_equal(MP_BINARY_OP_EQUAL, lhs_obj, rhs_obj);
 
     // are lhs and rhs ndarray?
     if (!MP_OBJ_IS_TYPE(lhs_obj, &ndarray_type) || !MP_OBJ_IS_TYPE(rhs_obj, &ndarray_type))
