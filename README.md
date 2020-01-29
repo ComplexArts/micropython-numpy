@@ -1,16 +1,19 @@
 # micropython-numpy
 
-`micropython-numpy` is a numpy-like array manipulation library for micropython. 
+`micropython-numpy` is a numpy-like array manipulation library for micropython.
+
 The module is written in C and aims to provide as much compatibility as possible with 
 select core numpy functionality. 
 
 This beginnings of this project were heavily inspired by
 the [ulab project](https://github.com/v923z/micropython-ulab).
-In its current version however, virtually all functionality have been redesigned 
+In its current version however, virtually all functionality has been redesigned 
 from the ground up to handle multidimensional arrays and array views.
 
 Documentation is very lacking at the moment but a user familiar with numpy should be 
 able to infer the syntax from the current numpy documentation.
+
+## Compatibility
 
 One major difference is that `shape` and `ndim` and `size` are not properties but methods. 
 The reason for that is discussed here
