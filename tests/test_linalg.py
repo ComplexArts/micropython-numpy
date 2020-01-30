@@ -21,7 +21,7 @@ class TestUnittestAssertions(unittest.TestCase):
         else:
             return super().assertEqual(a, b)
 
-    def test_lu(self):
+    def _test_lu(self):
 
         import math
 
@@ -95,6 +95,20 @@ class TestUnittestAssertions(unittest.TestCase):
         # inverse. singular
         with self.assertRaises(ValueError):
             Ai = np.inv(AA)
+
+    def test_qr(self):
+
+        import math
+
+        A = np.array([[1, -1, 4], [1, 4, -2], [1, 4, 2], [1, -1, 0]])
+        QR = np.array([[2, 3, 2],[-1, 5, -2], [-1, 0, 4], [-1, 1, 0]])
+
+        # qr decomposition
+        qr = np.qr(A)
+        print(qr)
+        for i, ei in enumerate(qr):
+            for j, eij in enumerate(ei):
+                self.assertEqual(eij, QR[i][j])
 
 if __name__ == "__main__":
     unittest.main()

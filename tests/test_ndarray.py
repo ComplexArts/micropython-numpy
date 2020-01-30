@@ -292,6 +292,11 @@ class TestUnittestAssertions(unittest.TestCase):
                 self.assertEqual(eij, dd[i][j])
 
         # zeros
+        m = np.zeros(3, dtype=dtype)
+        self.assertEqual(m.shape(), (3,))
+        for i, ei in enumerate(m):
+            self.assertEqual(ei, 0)
+
         m = np.zeros((3,), dtype=dtype)
         self.assertEqual(m.shape(), (3,))
         for i, ei in enumerate(m):

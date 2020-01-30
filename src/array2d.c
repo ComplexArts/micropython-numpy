@@ -11,6 +11,118 @@
 #define TOL 1e-6
 typedef uint16_t perm_t;
 
+void
+array2d_prod(size_t m, size_t n, size_t j, mp_float_t *v, mp_float_t *A, mp_float_t *u) {
+    // perform the product u^T = v^T A[j:m, j:n]
+    size_t i, k;
+    for (k = j; k < n; k++) {
+        u[k] = 0.;
+        for (i = j; i<m; i++) {
+            u[k] += v[i] * A[i * n + k];
+        }
+    }
+}
+
+mp_float_t
+array2d_house(size_t n, size_t ldx, mp_float_t *x, mp_float_t *v, mp_float_t tol) {
+
+    // sigma = ||x(2:n)||^2
+    // v = [1; x(2:n)]
+    size_t i;
+    v[0] = 1.;
+    mp_float_t sigma = 0., beta = 0., mu, v0, v02, x0 = x[0], xi;
+    for (i = 1; i < n; i++) {
+        xi = x[i*ldx];
+        v[i] = xi;
+        sigma += xi * xi;
+    }
+
+#ifdef NDARRAY_DEBUG
+    printf("sigma = %f\n", sigma);
+#endif
+
+    if (sigma > tol) {
+        mu = sqrt(x0*x0 + sigma);
+#ifdef NDARRAY_DEBUG
+        printf("mu = %f\n", mu);
+#endif
+        v0 = (x0 <= 0 ? x0 - mu : -sigma/(x0 + mu));
+        v02 = v0*v0;
+        beta = 2*v02/(sigma + v02);
+#ifdef NDARRAY_DEBUG
+        printf("beta = %f\n", beta);
+#endif
+        // v = v / v0
+        for (i = 1; i < n; i++) {
+            v[i] /= v0;
+        }
+    }
+
+    return beta;
+}
+
+void
+array2d_perform_qr(ndarray_obj_t *A, mp_float_t tol) {
+
+#ifdef NDARRAY_DEBUG
+    printf("ARRAY2D_PERFORM_QR\n");
+#endif
+
+    // initialize
+    mp_float_t beta;
+    size_t m = A->shape[0], n = A->shape[1];
+    size_t i, j, k, r;
+    mp_float_t v[m], u[n];
+
+    // get pointer to data
+    mp_float_t *ptrA = (mp_float_t*) array_get_ptr_array(A->typecode, A->array->items, 0);
+
+#ifdef NDARRAY_DEBUG
+    printf("A = ");
+    mp_obj_print_helper(&mp_sys_stdout_print, A, PRINT_REPR);
+    printf("\n");
+#endif
+
+    // iterate
+    r = m >= n ? n : m;
+    for (j = 0; j < r; j++) {
+
+        // house
+        beta = array2d_house(m - j, n, ptrA + j * n + j, v + j, tol);
+
+        // A[j:m, j:n] = (I - beta v v^T) A[j:m, j:n]
+        //             = A[j:m, j:n] - beta v (v^T A[j:m, j:n])
+        // A[j:m, j:n] -= beta v u^T, u^T = (v^T A[j:m, j:n])
+
+        if (beta > 0) {
+            // calculate u^T = (v^T A[j:m, j:n])
+            array2d_prod(m, n, j, v, ptrA, u);
+
+            // calculate A[j:m, j:n] -= beta v u^T, u^T = (v^T A[j:m, j:n])
+            for (i = j; i < m; i++) {
+                for (k = j; k < n; k++) {
+                    ptrA[i * n + k] -= beta * v[i] * u[k];
+                }
+            }
+
+            if (j <= m) {
+                // calculate A[j + 1 : m, j] = v[2: m - j + 1]
+                for (i = j + 1; i < m; i++) {
+                    ptrA[i * n + j] = v[i];
+                }
+            }
+        }
+
+#ifdef NDARRAY_DEBUG
+        printf("A = ");
+        mp_obj_print_helper(&mp_sys_stdout_print, A, PRINT_REPR);
+        printf("\n");
+#endif
+
+    }
+
+}
+
 mp_int_t
 array2d_perform_lu(ndarray_obj_t *A, ndarray_obj_t *P, mp_float_t tol) {
 
@@ -351,4 +463,31 @@ array2d_lu_inv(mp_obj_t self_obj) {
     }
 
     return MP_OBJ_FROM_PTR(x);
+}
+
+mp_obj_t
+array2d_qr(mp_obj_t self_obj) {
+
+    // is ndarray?
+    if (!MP_OBJ_IS_TYPE(self_obj, &ndarray_type)) {
+        mp_raise_ValueError("expected ndarray");
+        return mp_const_none;
+    }
+
+    ndarray_obj_t *self = MP_OBJ_TO_PTR(self_obj);
+
+    if (self->dims != 2) {
+        mp_raise_ValueError("expected matrix");
+        return mp_const_none;
+    }
+
+    // cast as float
+    ndarray_obj_t *qr = array_astype(self, NDARRAY_FLOAT, true);
+
+    // perform qr decomposition
+    array2d_perform_qr(qr, TOL);
+
+    // return qr
+    return MP_OBJ_FROM_PTR(qr);
+
 }

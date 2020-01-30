@@ -994,9 +994,35 @@ ndarray_hstack(mp_obj_t iterable) {
         return mp_const_none;
     }
 
+    // reshape ints and floats as 1D arrays
+    for (size_t j = 0; j < len; j++) {
+
+        if (mp_obj_is_int(items[j]) || mp_obj_is_float(items[j])) {
+
+            // create 1D array to hold scalar
+            size_t dims = 1;
+            size_t *shape = m_new(size_t, dims);
+            shape[0] = 1;
+
+            // create array, do not initialize
+            ndarray_obj_t *ndarray = array_create_new(dims, shape, NDARRAY_FLOAT, false);
+
+            // assign fill value
+            array_assign_array(ndarray->array, 0, 1, 1, items[j]);
+
+            // replace current item by array
+            items[j] = MP_OBJ_FROM_PTR(ndarray);
+
+        }
+
+    }
+
     // get dims
     mp_int_t dims = array_iterable_dims(iterable) - 1;
-    if (dims == 1) {
+    if (dims == 0) {
+        mp_raise_ValueError("cannot concatenate entries");
+        return mp_const_none;
+    } else if (dims == 1) {
         // call concatenate on first axis
         return array_concatenate(0, dims, len, items);
     } else { // dims >= 1
@@ -1011,8 +1037,14 @@ ndarray_hstack(mp_obj_t iterable) {
 mp_obj_t
 array_create_new_fill(mp_obj_t tuple, mp_obj_t fill_value, ndarray_type_t dtype) {
 
-    // is first argument tuple?
-    if (!mp_obj_is_type(tuple, &mp_type_tuple)) {
+    // is first argument integer?
+    if (mp_obj_is_int(tuple)) {
+        mp_obj_t _tuple_obj = mp_obj_new_tuple(1, NULL);
+        mp_obj_tuple_t *_tuple = MP_OBJ_TO_PTR(_tuple_obj);
+        _tuple->items[0] = tuple;
+        tuple = _tuple_obj;
+    } else if (!mp_obj_is_type(tuple, &mp_type_tuple)) {
+        // is first argument not tuple?
         mp_raise_TypeError("first argument must be a tuple");
         return mp_const_none;
     }
@@ -1325,5 +1357,19 @@ ndarray_fliplr(mp_obj_t self_obj) {
 
     // flip axis 1
     return array_flip(MP_OBJ_TO_PTR(self_obj), 1);
+
+}
+
+// TOLIST
+
+mp_obj_t
+ndarray_tolist(mp_obj_t self_obj) {
+
+    // is ndarray?
+    if (!MP_OBJ_IS_TYPE(self_obj, &ndarray_type)) {
+        mp_raise_ValueError("expected ndarray");
+    }
+
+    return self_obj;
 
 }
