@@ -611,9 +611,12 @@ unary_generic_fun_recursive(size_t level,
 
 }
 
-
 #define UNARY_FUN_FLOAT_1(py_name, c_name) \
     mp_obj_t unary_fun_ ## py_name(mp_obj_t lhs) { \
+        if (!mp_obj_is_type(lhs, &ndarray_type)) { \
+            mp_raise_ValueError("expected ndarray"); \
+            return mp_const_none; \
+        } \
         /* typecode defaults to NDARRAY_FLOAT */ \
         mp_obj_t result = unary_fun_create_result(lhs, NDARRAY_FLOAT); \
         ndarray_obj_t *result_ndarray = MP_OBJ_TO_PTR(result); \
