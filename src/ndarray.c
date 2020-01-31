@@ -1180,14 +1180,6 @@ ndarray_eye(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
 mp_obj_t
 ndarray_fabs(mp_obj_t lhs_obj) {
 
-    /*
-    const mp_obj_type_t *type = mp_obj_get_type(lhs_obj);
-    if (type->unary_op != NULL) {
-        return type->unary_op(MP_UNARY_OP_ABS, lhs_obj);
-    } else {
-        return MP_OBJ_NULL;
-    }
-     */
     return mp_unary_op(MP_UNARY_OP_ABS, lhs_obj);
 
 }
@@ -1259,7 +1251,7 @@ ndarray_array_equal(mp_obj_t lhs_obj, mp_obj_t rhs_obj) {
 
     // are lhs and rhs ndarray?
     if (!MP_OBJ_IS_TYPE(lhs_obj, &ndarray_type) && !MP_OBJ_IS_TYPE(rhs_obj, &ndarray_type))
-        return mp_binary_op_equal(MP_BINARY_OP_EQUAL, lhs_obj, rhs_obj);
+        return mp_obj_equal_not_equal(MP_BINARY_OP_EQUAL, lhs_obj, rhs_obj);
 
     // are lhs and rhs ndarray?
     if (!MP_OBJ_IS_TYPE(lhs_obj, &ndarray_type) || !MP_OBJ_IS_TYPE(rhs_obj, &ndarray_type))
