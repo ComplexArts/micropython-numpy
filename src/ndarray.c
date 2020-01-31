@@ -276,14 +276,13 @@ array_get_slice_recursive(ndarray_obj_t *self, size_t level, size_t len, mp_obj_
         printf("BASIC SLICING: INTEGER, level %ld\n", level);
 #endif
 
-        size_t raw_index = mp_obj_get_int(*items);
-        size_t index = raw_index;
+        mp_int_t index = mp_obj_get_int(*items);;
         if(index < 0) {
             // flip in case it is negative
             index += *self->shape;
         }
 #ifdef NDARRAY_DEBUG
-        printf("raw index = %ld\n", index);
+        printf("index = %ld\n", index);
 #endif
         if (index < 0 || index >= self->shape[level]) {
             mp_raise_msg(&mp_type_IndexError, "index is out of bounds");

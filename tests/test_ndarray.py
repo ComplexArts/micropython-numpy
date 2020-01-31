@@ -207,6 +207,9 @@ class TestUnittestAssertions(unittest.TestCase):
         for i in range(5):
             self.assertEqual(c[i], data[i])
 
+        # negative slice
+        c[-1]
+
         # slices
         d = c[:3]
         dd = data[:3]

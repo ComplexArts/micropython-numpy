@@ -67,11 +67,13 @@ MP_DEFINE_CONST_FUN_OBJ_KW(ndarray_maximum_obj, 2, binary_maximum);
 MP_DEFINE_CONST_FUN_OBJ_1(array_transpose_obj, array_transpose);
 MP_DEFINE_CONST_FUN_OBJ_2(array_dot_obj, array_dot);
 
-MP_DEFINE_CONST_FUN_OBJ_1(array2d_qr_obj, array2d_qr);
 MP_DEFINE_CONST_FUN_OBJ_1(array2d_lu_obj, array2d_lu);
 MP_DEFINE_CONST_FUN_OBJ_1(array2d_lu_det_obj, array2d_lu_det);
 MP_DEFINE_CONST_FUN_OBJ_2(array2d_lu_solve_obj, array2d_lu_solve);
 MP_DEFINE_CONST_FUN_OBJ_1(array2d_lu_inv_obj, array2d_lu_inv);
+
+MP_DEFINE_CONST_FUN_OBJ_1(array2d_qr_obj, array2d_qr);
+MP_DEFINE_CONST_FUN_OBJ_2(array2d_qr_solve_obj, array2d_qr_solve);
 
 MP_DEFINE_CONST_FUN_OBJ_1(unary_fun_acos_obj, unary_fun_acos);
 MP_DEFINE_CONST_FUN_OBJ_1(unary_fun_asin_obj, unary_fun_asin);
@@ -161,10 +163,13 @@ STATIC const mp_map_elem_t numpy_globals_table[] = {
 
     { MP_ROM_QSTR(MP_QSTR_dot), (mp_obj_t)&array_dot_obj },
     { MP_ROM_QSTR(MP_QSTR_lu), (mp_obj_t)&array2d_lu_obj },
-    { MP_ROM_QSTR(MP_QSTR_qr), (mp_obj_t)&array2d_qr_obj },
     { MP_ROM_QSTR(MP_QSTR_det), (mp_obj_t)&array2d_lu_det_obj },
     { MP_ROM_QSTR(MP_QSTR_inv), (mp_obj_t)&array2d_lu_inv_obj },
     { MP_ROM_QSTR(MP_QSTR_solve), (mp_obj_t)&array2d_lu_solve_obj },
+
+    { MP_ROM_QSTR(MP_QSTR_qr), (mp_obj_t)&array2d_qr_obj },
+    { MP_ROM_QSTR(MP_QSTR_qr_solve), (mp_obj_t)&array2d_qr_solve_obj },
+    { MP_ROM_QSTR(MP_QSTR_lstsq), (mp_obj_t)&array2d_qr_solve_obj },
 
     { MP_ROM_QSTR(MP_QSTR_concatenate), (mp_obj_t)&ndarray_concatenate_obj },
     { MP_ROM_QSTR(MP_QSTR_vstack), (mp_obj_t)&ndarray_vstack_obj },
