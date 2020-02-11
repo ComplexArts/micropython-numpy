@@ -99,23 +99,23 @@ void ndarray_print(const mp_print_t *print, const mp_obj_t self_in, mp_print_kin
 
 void ndarray_print_debug(ndarray_obj_t *self) {
 
-    printf("\nNDARRAY with %ld dimensions", self->dims);
+    printf("\nNDARRAY with %zu dimensions", self->dims);
     printf("\n> typecode: %c", self->typecode);
-    printf("\n> size: %ld", self->size);
+    printf("\n> size: %zu", self->size);
     printf("\n> shapes: ");
     for (size_t i = 0; i < self->dims; i++) {
-        printf("%ld, ", self->shape[i]);
+        printf("%zu, ", self->shape[i]);
     }
     printf("\n> slices: ");
     for (size_t i = 0; i < self->dims; i++) {
-        printf("\n  start = %ld, stop = %ld, step = %ld", self->slice[i].start, self->slice[i].stop, self->slice[i].step);
+        printf("\n  start = %zu, stop = %zu, step = %zu", self->slice[i].start, self->slice[i].stop, self->slice[i].step);
     }
-    printf("\n> array_size: %ld", self->array_size);
+    printf("\n> array_size: %zu", self->array_size);
     printf("\n> array_shapes: ");
     for (size_t i = 0; i < self->dims; i++) {
-        printf("%ld, ", self->array_shape[i]);
+        printf("%zu, ", self->array_shape[i]);
     }
-    printf("\n> array_bytes: %ld", self->bytes);
+    printf("\n> array_bytes: %zu", self->bytes);
     printf("\n> array->typecode: %c", self->array->typecode);
     printf("\n");
 
@@ -176,7 +176,7 @@ ndarray_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp
         return mp_const_none;
     }
 #ifdef NDARRAY_DEBUG
-    printf("dims = %ld\n", dims);
+    printf("dims = %zu\n", dims);
 #endif
 
     // initialize shape
@@ -190,7 +190,7 @@ ndarray_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp
 #ifdef NDARRAY_DEBUG
     printf("shape = ");
     for (int i = 0; i < dims; i++)
-        printf("%ld, ", shape[i]);
+        printf("%zu, ", shape[i]);
     printf("\n");
 #endif
 
@@ -234,7 +234,7 @@ array_get_slice_integer(ndarray_obj_t *self, size_t level, size_t index, mp_obj_
 
         // multidimensional array, flatten
 #ifdef NDARRAY_DEBUG
-        printf("%ldD ARRAY, level %ld\n", self->dims, level);
+        printf("%zuD ARRAY, level %zu\n", self->dims, level);
 #endif
 
         // return value
@@ -273,7 +273,7 @@ array_get_slice_recursive(ndarray_obj_t *self, size_t level, size_t len, mp_obj_
 
         // basic slicing, int
 #ifdef NDARRAY_DEBUG
-        printf("BASIC SLICING: INTEGER, level %ld\n", level);
+        printf("BASIC SLICING: INTEGER, level %zu\n", level);
 #endif
 
         mp_int_t index = mp_obj_get_int(*items);;
@@ -282,7 +282,7 @@ array_get_slice_recursive(ndarray_obj_t *self, size_t level, size_t len, mp_obj_
             index += *self->shape;
         }
 #ifdef NDARRAY_DEBUG
-        printf("index = %ld\n", index);
+        printf("index = %zu\n", index);
 #endif
         if (index < 0 || index >= self->shape[level]) {
             mp_raise_msg(&mp_type_IndexError, "index is out of bounds");
@@ -292,7 +292,7 @@ array_get_slice_recursive(ndarray_obj_t *self, size_t level, size_t len, mp_obj_
         // calculate sliced index
         index = self->slice[level].start + index * self->slice[level].step;
 #ifdef NDARRAY_DEBUG
-        printf("sliced index = %ld\n", index);
+        printf("sliced index = %zu\n", index);
 #endif
 
         // TODO: use array_get_slice_integer
@@ -322,7 +322,7 @@ array_get_slice_recursive(ndarray_obj_t *self, size_t level, size_t len, mp_obj_
 
             // multidimensional array, flatten
 #ifdef NDARRAY_DEBUG
-            printf("%ldD ARRAY, level %ld\n", self->dims, level);
+            printf("%zuD ARRAY, level %zu\n", self->dims, level);
 #endif
             // create new view
             if (level == 0)
@@ -352,7 +352,7 @@ array_get_slice_recursive(ndarray_obj_t *self, size_t level, size_t len, mp_obj_
 
         // basic slicing, slice
 #ifdef NDARRAY_DEBUG
-        printf("BASIC SLICING: SLICE, level %ld\n", level);
+        printf("BASIC SLICING: SLICE, level %zu\n", level);
 #endif
 
         // get slice
@@ -361,7 +361,7 @@ array_get_slice_recursive(ndarray_obj_t *self, size_t level, size_t len, mp_obj_
 
 #ifdef NDARRAY_DEBUG
         size_t len = ndarray_slice_length(&slice);
-        printf("slice: start = %ld, stop = %ld, step = %ld, len = %ld\n", slice.start, slice.stop, slice.step, len);
+        printf("slice: start = %zu, stop = %zu, step = %zu, len = %zu\n", slice.start, slice.stop, slice.step, len);
 #endif
 
         // create view slices
@@ -371,7 +371,7 @@ array_get_slice_recursive(ndarray_obj_t *self, size_t level, size_t len, mp_obj_
         ndarray_slice_slice(view_slice + level, self->slice + level, &slice);
 #ifdef NDARRAY_DEBUG
         size_t view_len = ndarray_slice_length(view_slice + level);
-        printf("view slice: start = %ld, stop = %ld, step = %ld, len = %ld\n", view_slice[level].start, view_slice[level].stop, view_slice[level].step, view_len);
+        printf("view slice: start = %zu, stop = %zu, step = %zu, len = %zu\n", view_slice[level].start, view_slice[level].stop, view_slice[level].step, view_len);
 #endif
 
         // copy remaining slices
@@ -482,7 +482,7 @@ mp_obj_t ndarray_iternext(mp_obj_t self_in) {
     mp_bound_slice_t *slice = ndarray->slice;
     size_t index = slice->start + self->cur * slice->step;
 #ifdef NDARRAY_DEBUG
-    printf("cur = %ld, index = %ld, start = %ld, step = %ld, stop = %ld\n", self->cur, index, slice->start, slice->step, slice->stop);
+    printf("cur = %zu, index = %zu, start = %zu, step = %zu, stop = %zu\n", self->cur, index, slice->start, slice->step, slice->stop);
 #endif
 
     if (index < slice->stop) {
@@ -519,7 +519,7 @@ unary_op_helper(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
         axis = mp_obj_get_int(axis_obj);
 
 #ifdef NDARRAY_DEBUG
-    printf("axis = %ld\n", axis);
+    printf("axis = %zu\n", axis);
     mp_obj_print_helper(&mp_sys_stdout_print, pos_args[0], PRINT_REPR);
     printf("\n");
 #endif
@@ -694,7 +694,7 @@ ndarray_reshape(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     }
 
 #ifdef NDARRAY_DEBUG
-    printf("newdims = %ld\n", newdims);
+    printf("newdims = %zu\n", newdims);
 #endif
 
     // calculate shape and depth
@@ -716,15 +716,15 @@ ndarray_reshape(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     }
 
 #ifdef NDARRAY_DEBUG
-    printf("newdepth = %ld\n", newdepth);
+    printf("newdepth = %zu\n", newdepth);
     printf("newshape = ");
     for (size_t i = 0; i < newdims; i++) {
-        printf("%ld, ", newshape[i]);
+        printf("%zu, ", newshape[i]);
     }
     printf("\n");
     printf("newslice = ");
     for (size_t i = 0; i < newdims; i++) {
-        printf("  start = %ld, stop = %ld, step = %ld\n", newslice[i].start, newslice[i].stop, newslice[i].step);
+        printf("  start = %zu, stop = %zu, step = %zu\n", newslice[i].start, newslice[i].stop, newslice[i].step);
     }
     printf("\n");
 #endif
@@ -864,7 +864,7 @@ ndarray_concatenate(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) 
     }
 
 #ifdef NDARRAY_DEBUG
-    printf("len = %ld\n", len);
+    printf("len = %zu\n", len);
 #endif
 
     // get axis
